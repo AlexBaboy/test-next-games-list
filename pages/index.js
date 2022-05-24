@@ -1,27 +1,150 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import {useEffect} from "react";
+import {useEffect, useRef, useState} from "react";
+import Link from "next/link";
+import {StyledGrid} from "../components/ui/StyledGrid";
+import {StyledCard} from "../components/ui/StyledCard";
+import OrderList from "../components/OrderList";
+import {APP_BASE_URL} from "../constants/ui/routes";
+import {APP_KEY} from "../constants/ui/keys";
 
-export default function Catalog () {
+export default function Catalog ({gamesList}) {
 
-    /* useEffect( () => {
+    const [games, setGames] = useState(gamesList.data.results)
+    const [loading, setLoading] = useState(false)
 
-        async function loadData () {
-            const response = await fetch('https://api.rawg.io/api/games?key=3dc5c45166e74b9e8df58aa5d4344d90')
-            const data = await response.json()
+    const nextUrlRef = useRef(gamesList.data.next);
+    const usedUrlRef = useRef('');
 
-            if(!data) {
-                return {
-                    notFound: true
-                }
-            }
+    console.log('gamesList', gamesList)
+    useEffect(() => {
 
-            console.log('data', data)
+        // почистить куки
+        document.cookie = 'gameId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+
+        document.addEventListener('scroll', scrollHandler)
+
+        /*console.log('document.cookie', document.cookie)
+        console.log('document.cookie.games', getCookieByName('games'))*/
+
+        return () => {
+            document.removeEventListener('scroll', scrollHandler)
         }
 
-        loadData()
+    },[])
 
-    }, [])*/
+    const getCookieByName = (name) => {
+        let matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        return matches ? matches[1] : undefined;
+    }
+
+    const loadMoreGames = (url) => {
+        setLoading(true)
+        async function loadData () {
+            const response = await fetch(url)
+            const data = await response.json()
+
+            setGames(prevState => ([
+                        ...prevState,
+                        ...data.results
+                        ])
+            )
+
+            console.log('39 games', games)
+
+            const gamesUpdated = [...games, ...data.results]
+
+            nextUrlRef.current = data.next
+            usedUrlRef.current = url
+
+            document.cookie = `games=${JSON.stringify(gamesUpdated)}`
+
+            setLoading(false)
+        }
+        loadData()
+    }
+
+    useEffect(() => {
+        console.log('51 games', games)
+    }, [games])
+
+    useEffect(() => {
+        console.log('55 loading', loading)
+    }, [loading])
+
+    const scrollHandler = (e) => {
+
+        /*const documentRect = document.documentElement.getBoundingClientRect()
+        if (documentRect.bottom < document.documentElement.clientHeight + 100) {*/
+
+        if (window.innerHeight + e.target.documentElement.scrollTop + 1 >=
+            e.target.documentElement.scrollHeight
+        ) {
+
+            console.log('74 nextUrlRef.current',nextUrlRef.current)
+            console.log('75 usedUrlRef.current',usedUrlRef.current)
+
+            console.log('68 loading', loading)
+
+            // if (next && next !== usedUrl && !loading) {
+            if (nextUrlRef && nextUrlRef.current && !loading) {
+                loadMoreGames(nextUrlRef.current)
+                console.log('bottom of the page')
+            }
+        }
+    }
+
+    const saveIdOfGame = (id) => {
+        document.cookie = `gameId=${id}`
+    }
+
+    const getNewGames = (url) => {
+        setLoading(true)
+        async function loadData () {
+            const response = await fetch(url)
+            const data = await response.json()
+
+            setGames(data.results)
+
+            console.log('39 games', games)
+
+            const gamesUpdated = data.results
+
+            document.cookie = `games=${JSON.stringify(gamesUpdated)}`
+
+            setLoading(false)
+        }
+        loadData()
+    }
+
+    const orderChangeHandler = (value) => {
+        console.log('value',value)
+        console.log('orderChangeHandler')
+
+        if (!value) return
+
+        switch (value) {
+            case '0':
+                // return getGamesByFilter();
+                return getNewGames(`${APP_BASE_URL}/api/games?key=${APP_KEY}`);
+            case '1':
+                return getNewGames(`${APP_BASE_URL}/api/games?ordering=rating&key=${APP_KEY}`);
+            case '2':
+                return getNewGames(`${APP_BASE_URL}/api/games?ordering=-rating&key=${APP_KEY}`);
+            case '3':
+                return getNewGames(`${APP_BASE_URL}/api/games?ordering=released&key=${APP_KEY}`);
+            case '4':
+                return getNewGames(`${APP_BASE_URL}/api/games?ordering=-released&key=${APP_KEY}`);
+            default:
+                return getNewGames(`${APP_BASE_URL}/api/games?key=${APP_KEY}`);
+        }
+    }
+
+    const getGamesByFilter = (params) => {
+
+    }
 
   return (
     <div className={styles.container}>
@@ -31,22 +154,54 @@ export default function Catalog () {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <div>
+          <OrderList onChange={orderChangeHandler} />
+      </div>
+
       <main className={styles.main}>
         <h1 className={styles.title}>
           Games list
         </h1>
-
+        {/*<div className={styles.gamesGrid}>*/}
+        <StyledGrid>
+            {loading && <div>Loading...</div>}
+            { games && games.length && games.map((game) => (
+                <StyledCard key={game.id}>
+                    <Link href={`/game/${game.slug}`}
+                        key={game.id} className={styles.gameCard}
+                    >
+                        <a onClick={() => saveIdOfGame(game.id)}>
+                            <div className={styles.gamePoster}>
+                                <img
+                                    src={game.background_image ?? '/image-not-found.png'}
+                                    width='100%'
+                                    height='100%'
+                                    alt={game.name}
+                                />
+                            </div>
+                            <div className={styles.gameName}> {game.name} </div>
+                            <div className={styles.gameDate}> released: {game.released} </div>
+                            <div className={styles.gameRating}> rating: {game.rating} </div>
+                        </a>
+                    </Link>
+                </StyledCard>
+            ))}
+        </StyledGrid>
       </main>
-
     </div>
   )
 }
 
 
-export async function getServerSideProps () {
-    console.log('48')
-    const response = await fetch('https://api.rawg.io/api/games?key=3dc5c45166e74b9e8df58aa5d4344d90')
-    const data = await response.json()
+export async function getServerSideProps ({req}) {
+
+    // const response = await fetch(next ? next : 'https://api.rawg.io/api/games?key=3dc5c45166e74b9e8df58aa5d4344d90')
+    let response, data;
+
+    console.log('142 req.cookies', req.cookies)
+
+    response = await fetch(`${APP_BASE_URL}/api/games?key=${APP_KEY}`)
+    data = await response.json()
 
     if(!data) {
         return {
@@ -56,7 +211,9 @@ export async function getServerSideProps () {
 
     return {
         props: {
-            results: {data}
+            gamesList: {
+                data
+            }
         }
     }
 }
