@@ -8,7 +8,14 @@ const Search = React.forwardRef (({searchHandler, disabled}, ref) => {
         <StyledSearchBlock>
             <h3>Search by name</h3>
             <div>
-                <input disabled={disabled} className='searchInputField' type='text' ref={ref} onKeyDown={(e) => searchHandler(e)} />
+                <input
+                    disabled={disabled}
+                    className='searchInputField'
+                    type='text'
+                    ref={ref}
+                    onKeyDown={(e) => searchHandler(e)}
+                    placeholder='fill the name and press ENTER'
+                />
             </div>
         </StyledSearchBlock>
     )

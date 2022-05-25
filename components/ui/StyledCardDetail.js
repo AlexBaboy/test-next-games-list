@@ -19,7 +19,6 @@ export const StyledCardDetail = styled.div`
   }
   
   .gameCardWebsiteDetails {
-    margin-top: 2rem;
     font-size: 1.6rem;
     
     a {

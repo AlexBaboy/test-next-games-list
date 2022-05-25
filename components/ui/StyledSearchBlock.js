@@ -13,11 +13,13 @@ export const StyledSearchBlock = styled.div`
 
   @media ${device.tablet} {
     .searchInputField {
-      width: auto;
+      width: 20rem;
     }
   }
 
   @media ${device.laptop} {
-
+    .searchInputField {
+      width: 40rem;
+    }
   }
 `;

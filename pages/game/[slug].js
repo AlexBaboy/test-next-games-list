@@ -13,14 +13,23 @@ export default function  GameDetails ({details}) {
                     alt={details.data.name}
                 />
             </div>
+
             <div className='gameCardNameDetails'>
                 {details.data.name}
             </div>
             <div className='gameCardDescriptionDetails'>
                 {details.data.description_raw || details.data.description}
             </div>
+
+            <div className='gameCardDescriptionDetails'>
+                <b>rating:</b> {details.data.rating}
+            </div>
+            <div className='gameCardDescriptionDetails'>
+                <b>released:</b> {details.data.released}
+            </div>
+
             <div className='gameCardWebsiteDetails'>
-                website: <a href={details.data.website} target='_blank' rel="noopener noreferrer">
+                <b>website:</b> <a href={details.data.website} target='_blank' rel="noopener noreferrer">
                             {details.data.website}
                         </a>
             </div>
