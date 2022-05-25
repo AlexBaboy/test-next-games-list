@@ -1,23 +1,30 @@
 import styles from "../../styles/Home.module.css";
+import {StyledCardDetail} from "../../components/ui/StyledCardDetail";
 
 export default function  GameDetails ({details}) {
 
     return (
-        <main className={styles.main}>
-            <div className={styles.gameCardDetailWrapper}>
-                <div className={styles.gameCardDetail}>
-                    <div className={styles.gameCardNameDetails}>
-                        {details.data.name}
-                    </div>
-                    <div className={styles.gameCardDescriptionDetails}>
-                        {details.data.description_raw || details.data.description}
-                    </div>
-                    <div className={styles.gameCardWebsiteDetails}>
-                        website: {details.data.website}
-                    </div>
-                </div>
+        <StyledCardDetail>
+            <div className='gameCardPosterDetail'>
+                <img
+                    src={details.data.background_image ?? '/image-not-found.png'}
+                    width='100%'
+                    height='100%'
+                    alt={details.data.name}
+                />
             </div>
-        </main>
+            <div className='gameCardNameDetails'>
+                {details.data.name}
+            </div>
+            <div className='gameCardDescriptionDetails'>
+                {details.data.description_raw || details.data.description}
+            </div>
+            <div className='gameCardWebsiteDetails'>
+                website: <a href={details.data.website} target='_blank' rel="noopener noreferrer">
+                            {details.data.website}
+                        </a>
+            </div>
+        </StyledCardDetail>
     )
 }
 

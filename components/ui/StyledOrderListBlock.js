@@ -1,25 +1,23 @@
 import styled from "styled-components";
 import {device} from "../../constants/ui";
 
-export const StyledGrid = styled.div`
+export const StyledOrderListBlock = styled.div`
   background-color: ${(props) => props.backgroundColor || "transparent"};
   font-size: ${(props) => props.fontSize || "16px"};
-  padding: 10px;
-  display: grid;
-  width: 100%;
 
   @media ${device.mobileS} {
-    grid-template-columns: repeat(1, 1fr);
-    grid-gap: 1.5rem;
+    .orderListSelect {
+      width: 100%;  
+    }
   }
 
   @media ${device.tablet} {
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 2rem;
+    .orderListSelect {
+      width: auto;
+    }
   }
 
   @media ${device.laptop} {
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: 3rem;
+
   }
 `;

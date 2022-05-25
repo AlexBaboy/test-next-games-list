@@ -1,25 +1,28 @@
 import styled from "styled-components";
 import {device} from "../../constants/ui";
 
-export const StyledGrid = styled.div`
+export const StyledFiltersContainer = styled.div`
   background-color: ${(props) => props.backgroundColor || "transparent"};
   font-size: ${(props) => props.fontSize || "16px"};
   padding: 10px;
-  display: grid;
-  width: 100%;
+  display: flex;
 
   @media ${device.mobileS} {
-    grid-template-columns: repeat(1, 1fr);
-    grid-gap: 1.5rem;
+    flex-direction: column;
+    font-size: 1rem;
+    gap: 0.2rem;
   }
 
   @media ${device.tablet} {
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 2rem;
+    flex-direction: row;
+    font-size: 1.2rem;
+    gap: 1.2rem;
   }
 
   @media ${device.laptop} {
-    grid-template-columns: repeat(4, 1fr);
-    grid-gap: 3rem;
+    font-size: 1.6rem;
+    gap: 2rem;
   }
+  
+  
 `;

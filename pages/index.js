@@ -7,38 +7,39 @@ import {StyledCard} from "../components/ui/StyledCard";
 import OrderList from "../components/OrderList";
 import {APP_BASE_URL} from "../constants/ui/routes";
 import {APP_KEY} from "../constants/ui/keys";
+import Search from "../components/Search";
+import PlatformsList from "../components/PlatformsList";
+import {StyledFiltersContainer} from "../components/ui/StyledFiltersContainer";
+import {StyledButton} from "../components/ui/StyledButton";
+import {StyledButtonWrapper} from "../components/ui/StyledButtonWrapper";
 
-export default function Catalog ({gamesList}) {
+export default function Catalog ({gamesList, platforms}) {
 
-    const [games, setGames] = useState(gamesList.data.results)
+    const [games, setGames] = useState(gamesList?.results || [])
     const [loading, setLoading] = useState(false)
 
-    const nextUrlRef = useRef(gamesList.data.next);
-    const usedUrlRef = useRef('');
+    const searchInput = useRef();
+    const orderSelect = useRef();
+    const filterSelect = useRef();
+
+    const nextUrlRef = useRef(gamesList?.next);
+
+    const defaultUrl = `${APP_BASE_URL}/api/games?key=${APP_KEY}`
 
     console.log('gamesList', gamesList)
+    console.log('platformsList', platforms)
     useEffect(() => {
 
         // почистить куки
         document.cookie = 'gameId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 
-        document.addEventListener('scroll', scrollHandler)
-
-        /*console.log('document.cookie', document.cookie)
-        console.log('document.cookie.games', getCookieByName('games'))*/
+/*        document.addEventListener('scroll', scrollHandler)
 
         return () => {
             document.removeEventListener('scroll', scrollHandler)
-        }
+        }*/
 
     },[])
-
-    const getCookieByName = (name) => {
-        let matches = document.cookie.match(new RegExp(
-            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-        ));
-        return matches ? matches[1] : undefined;
-    }
 
     const loadMoreGames = (url) => {
         setLoading(true)
@@ -52,15 +53,7 @@ export default function Catalog ({gamesList}) {
                         ])
             )
 
-            console.log('39 games', games)
-
-            const gamesUpdated = [...games, ...data.results]
-
             nextUrlRef.current = data.next
-            usedUrlRef.current = url
-
-            document.cookie = `games=${JSON.stringify(gamesUpdated)}`
-
             setLoading(false)
         }
         loadData()
@@ -74,76 +67,77 @@ export default function Catalog ({gamesList}) {
         console.log('55 loading', loading)
     }, [loading])
 
-    const scrollHandler = (e) => {
-
-        /*const documentRect = document.documentElement.getBoundingClientRect()
-        if (documentRect.bottom < document.documentElement.clientHeight + 100) {*/
-
-        if (window.innerHeight + e.target.documentElement.scrollTop + 1 >=
-            e.target.documentElement.scrollHeight
-        ) {
-
-            console.log('74 nextUrlRef.current',nextUrlRef.current)
-            console.log('75 usedUrlRef.current',usedUrlRef.current)
-
-            console.log('68 loading', loading)
-
-            // if (next && next !== usedUrl && !loading) {
-            if (nextUrlRef && nextUrlRef.current && !loading) {
-                loadMoreGames(nextUrlRef.current)
-                console.log('bottom of the page')
-            }
-        }
-    }
-
     const saveIdOfGame = (id) => {
         document.cookie = `gameId=${id}`
     }
 
-    const getNewGames = (url) => {
-        setLoading(true)
+    const fetchGames = (url) => {
+
         async function loadData () {
+
+            setLoading(true)
             const response = await fetch(url)
             const data = await response.json()
 
             setGames(data.results)
-
-            console.log('39 games', games)
-
-            const gamesUpdated = data.results
-
-            document.cookie = `games=${JSON.stringify(gamesUpdated)}`
-
+            nextUrlRef.current = data.next
             setLoading(false)
         }
         loadData()
     }
 
     const orderChangeHandler = (value) => {
-        console.log('value',value)
-        console.log('orderChangeHandler')
 
         if (!value) return
 
+        searchInput.current.value = ''
+        filterSelect.current.value = 0
+
         switch (value) {
             case '0':
-                // return getGamesByFilter();
-                return getNewGames(`${APP_BASE_URL}/api/games?key=${APP_KEY}`);
+                return fetchGames(defaultUrl);
             case '1':
-                return getNewGames(`${APP_BASE_URL}/api/games?ordering=rating&key=${APP_KEY}`);
+                return fetchGames(`${APP_BASE_URL}/api/games?ordering=rating&key=${APP_KEY}`);
             case '2':
-                return getNewGames(`${APP_BASE_URL}/api/games?ordering=-rating&key=${APP_KEY}`);
+                return fetchGames(`${APP_BASE_URL}/api/games?ordering=-rating&key=${APP_KEY}`);
             case '3':
-                return getNewGames(`${APP_BASE_URL}/api/games?ordering=released&key=${APP_KEY}`);
+                return fetchGames(`${APP_BASE_URL}/api/games?ordering=released&key=${APP_KEY}`);
             case '4':
-                return getNewGames(`${APP_BASE_URL}/api/games?ordering=-released&key=${APP_KEY}`);
+                return fetchGames(`${APP_BASE_URL}/api/games?ordering=-released&key=${APP_KEY}`);
             default:
-                return getNewGames(`${APP_BASE_URL}/api/games?key=${APP_KEY}`);
+                return fetchGames(defaultUrl);
         }
     }
 
-    const getGamesByFilter = (params) => {
+    const searchHandler = (e) => {
 
+        if (e.key === 'Enter') {
+
+            const nameGame = e.target.value
+
+            filterSelect.current.value = 0
+            orderSelect.current.value = 0
+
+            fetchGames(
+                nameGame
+                    ? `${APP_BASE_URL}/api/search?search=${nameGame}&key=${APP_KEY}`
+                    : defaultUrl
+            )
+        }
+    }
+
+    const onChangePlatformHandler = (platformId) => {
+
+        if (!platformId) return
+
+        searchInput.current.value = ''
+        orderSelect.current.value = 0
+
+        fetchGames(
+            platformId > 0
+                ? `${APP_BASE_URL}/api/games?parent_platforms=${platformId}&key=${APP_KEY}`
+                : defaultUrl
+        )
     }
 
   return (
@@ -154,24 +148,31 @@ export default function Catalog ({gamesList}) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div>
-          <OrderList onChange={orderChangeHandler} />
-      </div>
+      <StyledFiltersContainer>
+          <Search disabled={loading} searchHandler={searchHandler} ref={searchInput}/>
+          <OrderList disabled={loading} onChange={orderChangeHandler} ref={orderSelect}/>
+          <PlatformsList disabled={loading} platforms={platforms} onChange={onChangePlatformHandler} ref={filterSelect}/>
+      </StyledFiltersContainer>
 
       <main className={styles.main}>
         <h1 className={styles.title}>
           Games list
         </h1>
-        {/*<div className={styles.gamesGrid}>*/}
+
+          {loading && (
+              <div className={styles.spinnerContainer}>
+                  <div className={styles.loadingSpinner} />
+              </div>
+          )}
+
         <StyledGrid>
-            {loading && <div>Loading...</div>}
             { games && games.length && games.map((game) => (
                 <StyledCard key={game.id}>
                     <Link href={`/game/${game.slug}`}
-                        key={game.id} className={styles.gameCard}
+                        key={game.id} className='gameCard'
                     >
                         <a onClick={() => saveIdOfGame(game.id)}>
-                            <div className={styles.gamePoster}>
+                            <div className='gamePoster'>
                                 <img
                                     src={game.background_image ?? '/image-not-found.png'}
                                     width='100%'
@@ -179,41 +180,46 @@ export default function Catalog ({gamesList}) {
                                     alt={game.name}
                                 />
                             </div>
-                            <div className={styles.gameName}> {game.name} </div>
-                            <div className={styles.gameDate}> released: {game.released} </div>
-                            <div className={styles.gameRating}> rating: {game.rating} </div>
+                            <div className='gameName'> {game.name} </div>
+                            <div className='gameDate'> released: {game.released} </div>
+                            <div className='gameRating'> rating: {game.rating} </div>
                         </a>
                     </Link>
                 </StyledCard>
             ))}
+
         </StyledGrid>
+          { nextUrlRef && nextUrlRef.current && (
+              <StyledButtonWrapper>
+                <StyledButton type='button' disabled={loading} onClick={() => loadMoreGames(nextUrlRef.current)}>load more</StyledButton>
+              </StyledButtonWrapper>
+          )}
       </main>
     </div>
   )
 }
 
 
-export async function getServerSideProps ({req}) {
+export async function getServerSideProps () {
 
-    // const response = await fetch(next ? next : 'https://api.rawg.io/api/games?key=3dc5c45166e74b9e8df58aa5d4344d90')
-    let response, data;
+    // получить игры !!!
+    const responseGames = await fetch(`${APP_BASE_URL}/api/games?key=${APP_KEY}`)
+    const gamesList = await responseGames.json()
 
-    console.log('142 req.cookies', req.cookies)
-
-    response = await fetch(`${APP_BASE_URL}/api/games?key=${APP_KEY}`)
-    data = await response.json()
-
-    if(!data) {
+    if(!gamesList) {
         return {
             notFound: true
         }
     }
 
+    // получить платформы !!!
+    const responsePlatforms = await fetch(`${APP_BASE_URL}/api/platforms/lists/parents?key=${APP_KEY}`)
+    const platforms = await responsePlatforms.json()
+
     return {
         props: {
-            gamesList: {
-                data
-            }
+            gamesList,
+            platforms
         }
     }
 }
