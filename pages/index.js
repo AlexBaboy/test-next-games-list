@@ -12,11 +12,14 @@ import PlatformsList from "../components/PlatformsList";
 import {StyledFiltersContainer} from "../components/ui/StyledFiltersContainer";
 import {StyledButton} from "../components/ui/StyledButton";
 import {StyledButtonWrapper} from "../components/ui/StyledButtonWrapper";
+import {StyledError} from "../components/ui/StyledError";
+import {StyledErrorContainer} from "../components/ui/StyledErrorContainer";
 
 export default function Catalog ({gamesList, platforms}) {
 
     const [games, setGames] = useState(gamesList?.results || [])
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
 
     const searchInput = useRef();
     const orderSelect = useRef();
@@ -26,8 +29,6 @@ export default function Catalog ({gamesList, platforms}) {
 
     const defaultUrl = `${APP_BASE_URL}/api/games?key=${APP_KEY}`
 
-    console.log('gamesList', gamesList)
-    console.log('platformsList', platforms)
     useEffect(() => {
 
         // почистить куки
@@ -59,14 +60,6 @@ export default function Catalog ({gamesList, platforms}) {
         loadData()
     }
 
-    useEffect(() => {
-        console.log('51 games', games)
-    }, [games])
-
-    useEffect(() => {
-        console.log('55 loading', loading)
-    }, [loading])
-
     const saveIdOfGame = (id) => {
         document.cookie = `gameId=${id}`
     }
@@ -74,13 +67,19 @@ export default function Catalog ({gamesList, platforms}) {
     const fetchGames = (url) => {
 
         async function loadData () {
-
             setLoading(true)
-            const response = await fetch(url)
-            const data = await response.json()
+            try {
 
-            setGames(data.results)
-            nextUrlRef.current = data.next
+                const response = await fetch(url)
+                const data = await response.json()
+
+                setGames(data.results)
+                nextUrlRef.current = data.next
+
+
+            } catch(e) {
+                setError(e.message)
+            }
             setLoading(false)
         }
         loadData()
@@ -140,7 +139,23 @@ export default function Catalog ({gamesList, platforms}) {
         )
     }
 
-  return (
+    if (error) {
+        return (
+            <StyledErrorContainer>
+                <StyledError>
+                    <img
+                        src={'/error.jpg'}
+                        width='100%'
+                        height='100%'
+                        alt={error}
+                    />
+                    <div className='errorMessage'>{error}</div>
+                </StyledError>
+            </StyledErrorContainer>
+        )
+    }
+
+    return (
     <div className={styles.container}>
       <Head>
         <title>Create Next App</title>
