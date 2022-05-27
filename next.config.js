@@ -1,12 +1,4 @@
 /** @type {import('next').NextConfig} */
-/*
-const nextConfig = {
-  reactStrictMode: true,
-}
-
-module.exports = nextConfig
-*/
-
 module.exports = {
 
   webpack: (config, { isServer }) => {
@@ -20,5 +12,9 @@ module.exports = {
   reactStrictMode: true,
   compiler: {
     styledComponents: true,
+  },
+
+  images: {
+    domains: ['localhost', 'media.rawg.io'],
   },
 }

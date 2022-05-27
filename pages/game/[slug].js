@@ -1,39 +1,46 @@
-import styles from "../../styles/Home.module.css";
 import {StyledCardDetail} from "../../components/ui/StyledCardDetail";
+import Head from "next/head";
 
 export default function  GameDetails ({details}) {
 
     return (
-        <StyledCardDetail>
-            <div className='gameCardPosterDetail'>
-                <img
-                    src={details.data.background_image ?? '/image-not-found.png'}
-                    width='100%'
-                    height='100%'
-                    alt={details.data.name}
-                />
-            </div>
+        <>
+            <Head>
+                <title>{details.data.name}</title>
+                <meta name="description" content={details.data.description_raw || details.data.description} />
+                <link rel="icon" href="/favicon.ico" />
+            </Head>
+            <StyledCardDetail>
+                <div className='gameCardPosterDetail'>
+                    <img
+                        src={details.data.background_image ?? '/image-not-found.png'}
+                        width='100%'
+                        height='100%'
+                        alt={details.data.name}
+                    />
+                </div>
 
-            <div className='gameCardNameDetails'>
-                {details.data.name}
-            </div>
-            <div className='gameCardDescriptionDetails'>
-                {details.data.description_raw || details.data.description}
-            </div>
+                <div className='gameCardNameDetails'>
+                    {details.data.name}
+                </div>
+                <div className='gameCardDescriptionDetails'>
+                    {details.data.description_raw || details.data.description}
+                </div>
 
-            <div className='gameCardDescriptionDetails'>
-                <b>rating:</b> {details.data.rating}
-            </div>
-            <div className='gameCardDescriptionDetails'>
-                <b>released:</b> {details.data.released}
-            </div>
+                <div className='gameCardDescriptionDetails'>
+                    <b>rating:</b> {details.data.rating}
+                </div>
+                <div className='gameCardDescriptionDetails'>
+                    <b>released:</b> {details.data.released}
+                </div>
 
-            <div className='gameCardWebsiteDetails'>
-                <b>website:</b> <a href={details.data.website} target='_blank' rel="noopener noreferrer">
-                            {details.data.website}
-                        </a>
-            </div>
-        </StyledCardDetail>
+                <div className='gameCardWebsiteDetails'>
+                    <b>website:</b> <a href={details.data.website} target='_blank' rel="noopener noreferrer">
+                                {details.data.website}
+                            </a>
+                </div>
+            </StyledCardDetail>
+        </>
     )
 }
 
