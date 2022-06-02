@@ -1,4 +1,4 @@
-Каталог игр
+Каталог игр - тестовое задание, test task
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
