@@ -14,7 +14,6 @@ import {StyledButton} from "../components/ui/StyledButton";
 import {StyledButtonWrapper} from "../components/ui/StyledButtonWrapper";
 import {StyledError} from "../components/ui/StyledError";
 import {StyledErrorContainer} from "../components/ui/StyledErrorContainer";
-import Image from "next/image";
 
 export default function Catalog ({gamesList, platforms}) {
 
@@ -34,12 +33,6 @@ export default function Catalog ({gamesList, platforms}) {
 
         // почистить куки
         document.cookie = 'gameId=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-
-/*        document.addEventListener('scroll', scrollHandler)
-
-        return () => {
-            document.removeEventListener('scroll', scrollHandler)
-        }*/
 
     },[])
 
@@ -158,28 +151,28 @@ export default function Catalog ({gamesList, platforms}) {
 
     return (
     <div className={styles.container}>
-      <Head>
-        <title>Catalog games</title>
-        <meta name="description" content="Catalog games" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+          <Head>
+                <title>Catalog games</title>
+                <meta name="description" content="Catalog games" />
+                <link rel="icon" href="/favicon.ico" />
+          </Head>
 
-      <StyledFiltersContainer>
-          <Search disabled={loading} searchHandler={searchHandler} ref={searchInput}/>
-          <OrderList disabled={loading} onChange={orderChangeHandler} ref={orderSelect}/>
-          <PlatformsList disabled={loading} platforms={platforms} onChange={onChangePlatformHandler} ref={filterSelect}/>
-      </StyledFiltersContainer>
+          <StyledFiltersContainer>
+              <Search disabled={loading} searchHandler={searchHandler} ref={searchInput}/>
+              <OrderList disabled={loading} onChange={orderChangeHandler} ref={orderSelect}/>
+              <PlatformsList disabled={loading} platforms={platforms} onChange={onChangePlatformHandler} ref={filterSelect}/>
+          </StyledFiltersContainer>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Games list
-        </h1>
+        <main className={styles.main}>
+            <h1 className={styles.title}>
+                Games list
+            </h1>
 
-          {loading && (
-              <div className={styles.spinnerContainer}>
-                  <div className={styles.loadingSpinner} />
-              </div>
-          )}
+        {loading && (
+            <div className={styles.spinnerContainer}>
+                <div className={styles.loadingSpinner} />
+            </div>
+        )}
 
         <StyledGrid>
             { games && games.length && games.map((game) => (
@@ -204,13 +197,13 @@ export default function Catalog ({gamesList, platforms}) {
                 </StyledCard>
             ))}
 
-        </StyledGrid>
-          { nextUrlRef && nextUrlRef.current && (
-              <StyledButtonWrapper>
-                <StyledButton type='button' disabled={loading} onClick={() => loadMoreGames(nextUrlRef.current)}>load more</StyledButton>
-              </StyledButtonWrapper>
-          )}
-      </main>
+            </StyledGrid>
+            { nextUrlRef && nextUrlRef.current && (
+                <StyledButtonWrapper>
+                    <StyledButton type='button' disabled={loading} onClick={() => loadMoreGames(nextUrlRef.current)}>load more</StyledButton>
+                </StyledButtonWrapper>
+            )}
+          </main>
     </div>
   )
 }
